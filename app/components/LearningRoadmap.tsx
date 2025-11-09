@@ -8,6 +8,7 @@ import {
   Crown,
   MessageCircle,
   Heart,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
@@ -31,6 +32,7 @@ interface Module {
 
 interface LearningRoadmapProps {
   onStartLesson: (lessonTitle: string, lessonId: number) => void;
+  onStartModule?: (moduleId: number, moduleTitle: string) => void;
   completedLessonIds: number[];
 }
 
@@ -129,28 +131,27 @@ const modules: Module[] = [
   },
 ];
 
-export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningRoadmapProps) {
-  const [selectedLesson, setSelectedLesson] =
-    useState<Lesson | null>(null);
+export function LearningRoadmap({ 
+  onStartLesson, 
+  onStartModule,
+  completedLessonIds 
+}: LearningRoadmapProps) {
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   // Helper function to determine lesson status based on completedLessonIds
   const getLessonStatus = (lesson: Lesson, lessonIndex: number, allPreviousLessons: Lesson[]): LessonStatus => {
-    // If lesson is in completedLessonIds, it's completed
     if (completedLessonIds.includes(lesson.id)) {
       return "completed";
     }
     
-    // Check if all previous lessons are completed
     const allPreviousCompleted = allPreviousLessons.every(prev => 
       completedLessonIds.includes(prev.id)
     );
     
-    // If all previous lessons are completed, this is the current lesson
     if (allPreviousCompleted) {
       return "current";
     }
     
-    // Otherwise, it's locked
     return "locked";
   };
 
@@ -159,7 +160,6 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
   const updatedModules = modules.map(module => ({
     ...module,
     lessons: module.lessons.map((lesson, index) => {
-      // Get all lessons before this one across all modules
       const lessonGlobalIndex = allLessons.findIndex(l => l.id === lesson.id);
       const previousLessons = allLessons.slice(0, lessonGlobalIndex);
       
@@ -199,9 +199,7 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">
-            Overall Progress
-          </span>
+          <span className="text-sm text-gray-600">Overall Progress</span>
           <span className="text-sm">
             {completedCount}/{allLessons.length}
           </span>
@@ -211,17 +209,23 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
 
       {updatedModules.map((module) => (
         <div key={module.id} className="space-y-6">
-          {/* Module Header */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500">
-            <div className="flex items-center gap-3">
-              {module.id === 3 ? (
-                <MessageCircle className="w-6 h-6 text-blue-500" />
-              ) : (
-                <Heart className="w-6 h-6 text-pink-500" />
-              )}
-              <h2 className="text-gray-800">{module.title}</h2>
+          {/* Module Header - Now Clickable */}
+          <button
+            onClick={() => onStartModule?.(module.id, module.title)}
+            className="w-full bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500 hover:shadow-md hover:bg-blue-50 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {module.id === 3 ? (
+                  <MessageCircle className="w-6 h-6 text-blue-500" />
+                ) : (
+                  <Heart className="w-6 h-6 text-pink-500" />
+                )}
+                <h2 className="text-gray-800 font-semibold">{module.title}</h2>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
             </div>
-          </div>
+          </button>
 
           {/* Module Lessons */}
           <div className="relative">
@@ -234,13 +238,13 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
                 <div
                   key={lesson.id}
                   className={`flex items-center ${
-                    index % 2 === 0
-                      ? "flex-row"
-                      : "flex-row-reverse"
+                    index % 2 === 0 ? "flex-row" : "flex-row-reverse"
                   }`}
                 >
                   <div
-                    className={`flex-1 ${index % 2 === 0 ? "text-right pr-8" : "text-left pl-8"}`}
+                    className={`flex-1 ${
+                      index % 2 === 0 ? "text-right pr-8" : "text-left pl-8"
+                    }`}
                   >
                     {lesson.status !== "locked" && (
                       <div className="inline-block">
@@ -249,14 +253,12 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
                         </div>
                         {lesson.status === "completed" && (
                           <div className="flex items-center gap-1 justify-end">
-                            {[...Array(lesson.stars)].map(
-                              (_, i) => (
-                                <Star
-                                  key={i}
-                                  className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                                />
-                              ),
-                            )}
+                            {[...Array(lesson.stars)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                              />
+                            ))}
                           </div>
                         )}
                       </div>
@@ -265,12 +267,11 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
 
                   <button
                     onClick={() =>
-                      lesson.status !== "locked" &&
-                      setSelectedLesson(lesson)
+                      lesson.status !== "locked" && setSelectedLesson(lesson)
                     }
                     disabled={lesson.status === "locked"}
                     className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all transform hover:scale-110 ${getLessonColor(
-                      lesson,
+                      lesson
                     )} ${lesson.type === "achievement" ? "w-20 h-20" : ""}`}
                   >
                     {getLessonIcon(lesson)}
@@ -290,30 +291,24 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
             <div className="text-center">
               <div
                 className={`w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center mb-4 ${getLessonColor(
-                  selectedLesson,
+                  selectedLesson
                 )}`}
               >
                 {getLessonIcon(selectedLesson)}
               </div>
               <h2 className="mb-2">{selectedLesson.title}</h2>
-              <p className="text-gray-600 mb-4">
-                Earn {selectedLesson.xp} XP
-              </p>
+              <p className="text-gray-600 mb-4">Earn {selectedLesson.xp} XP</p>
 
               {selectedLesson.status === "completed" && (
                 <div className="flex items-center justify-center gap-2 mb-6">
-                  <span className="text-sm text-gray-600">
-                    Completed with
-                  </span>
+                  <span className="text-sm text-gray-600">Completed with</span>
                   <div className="flex gap-1">
-                    {[...Array(selectedLesson.stars)].map(
-                      (_, i) => (
-                        <Star
-                          key={i}
-                          className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                        />
-                      ),
-                    )}
+                    {[...Array(selectedLesson.stars)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                      />
+                    ))}
                   </div>
                 </div>
               )}
@@ -322,7 +317,9 @@ export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningR
                 <Button
                   className="w-full bg-green-500 hover:bg-green-600"
                   size="lg"
-                  onClick={() => onStartLesson(selectedLesson.title, selectedLesson.id)}
+                  onClick={() =>
+                    onStartLesson(selectedLesson.title, selectedLesson.id)
+                  }
                 >
                   {selectedLesson.status === "completed"
                     ? "Learn Again"
