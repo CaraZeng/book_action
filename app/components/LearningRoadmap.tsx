@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Lock, Check, Crown } from "lucide-react";
+import {
+  Star,
+  Lock,
+  Check,
+  Crown,
+  MessageCircle,
+  Heart,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 
@@ -16,21 +23,155 @@ interface Lesson {
   type: "lesson" | "practice" | "story" | "achievement";
 }
 
-const lessons: Lesson[] = [
-  { id: 1, title: "Basics 1", status: "completed", xp: 50, stars: 3, type: "lesson" },
-  { id: 2, title: "Basics 2", status: "completed", xp: 50, stars: 3, type: "lesson" },
-  { id: 3, title: "Practice", status: "completed", xp: 30, stars: 2, type: "practice" },
-  { id: 4, title: "Greetings", status: "current", xp: 50, stars: 0, type: "lesson" },
-  { id: 5, title: "Food", status: "locked", xp: 50, stars: 0, type: "lesson" },
-  { id: 6, title: "Story Time", status: "locked", xp: 40, stars: 0, type: "story" },
-  { id: 7, title: "Animals", status: "locked", xp: 50, stars: 0, type: "lesson" },
-  { id: 8, title: "Unit 1 Review", status: "locked", xp: 100, stars: 0, type: "achievement" },
-  { id: 9, title: "Travel", status: "locked", xp: 50, stars: 0, type: "lesson" },
-  { id: 10, title: "Numbers", status: "locked", xp: 50, stars: 0, type: "lesson" },
+interface Module {
+  id: number;
+  title: string;
+  lessons: Lesson[];
+}
+
+interface LearningRoadmapProps {
+  onStartLesson: (lessonTitle: string, lessonId: number) => void;
+  completedLessonIds: number[];
+}
+
+const modules: Module[] = [
+  {
+    id: 3,
+    title: "Module 3: Communication and Boundaries",
+    lessons: [
+      {
+        id: 1,
+        title: "Active Listening",
+        status: "completed",
+        xp: 50,
+        stars: 3,
+        type: "lesson",
+      },
+      {
+        id: 2,
+        title: "Expressing Needs",
+        status: "completed",
+        xp: 50,
+        stars: 3,
+        type: "lesson",
+      },
+      {
+        id: 3,
+        title: "Setting Boundaries",
+        status: "current",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 4,
+        title: "Conflict Resolution",
+        status: "locked",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 5,
+        title: "Nonverbal Cues",
+        status: "locked",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 6,
+        title: "Communication Practice",
+        status: "locked",
+        xp: 40,
+        stars: 0,
+        type: "practice",
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: "Module 4: Healthy vs. Unhealthy Relationships",
+    lessons: [
+      {
+        id: 7,
+        title: "Red Flags",
+        status: "locked",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 8,
+        title: "Green Flags",
+        status: "locked",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 9,
+        title: "Trust & Respect",
+        status: "locked",
+        xp: 50,
+        stars: 0,
+        type: "lesson",
+      },
+      {
+        id: 10,
+        title: "Module 4 Review",
+        status: "locked",
+        xp: 100,
+        stars: 0,
+        type: "achievement",
+      },
+    ],
+  },
 ];
 
-export function LearningRoadmap() {
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+export function LearningRoadmap({ onStartLesson, completedLessonIds }: LearningRoadmapProps) {
+  const [selectedLesson, setSelectedLesson] =
+    useState<Lesson | null>(null);
+
+  // Helper function to determine lesson status based on completedLessonIds
+  const getLessonStatus = (lesson: Lesson, lessonIndex: number, allPreviousLessons: Lesson[]): LessonStatus => {
+    // If lesson is in completedLessonIds, it's completed
+    if (completedLessonIds.includes(lesson.id)) {
+      return "completed";
+    }
+    
+    // Check if all previous lessons are completed
+    const allPreviousCompleted = allPreviousLessons.every(prev => 
+      completedLessonIds.includes(prev.id)
+    );
+    
+    // If all previous lessons are completed, this is the current lesson
+    if (allPreviousCompleted) {
+      return "current";
+    }
+    
+    // Otherwise, it's locked
+    return "locked";
+  };
+
+  // Get all lessons with updated statuses
+  const allLessons = modules.flatMap((m) => m.lessons);
+  const updatedModules = modules.map(module => ({
+    ...module,
+    lessons: module.lessons.map((lesson, index) => {
+      // Get all lessons before this one across all modules
+      const lessonGlobalIndex = allLessons.findIndex(l => l.id === lesson.id);
+      const previousLessons = allLessons.slice(0, lessonGlobalIndex);
+      
+      return {
+        ...lesson,
+        status: getLessonStatus(lesson, index, previousLessons)
+      };
+    })
+  }));
+
+  const completedCount = completedLessonIds.length;
+  const progressPercentage = (completedCount / allLessons.length) * 100;
 
   const getLessonColor = (lesson: Lesson) => {
     if (lesson.status === "completed") {
@@ -54,64 +195,94 @@ export function LearningRoadmap() {
     }
   };
 
-  const completedLessons = lessons.filter(l => l.status === "completed").length;
-  const progressPercentage = (completedLessons / lessons.length) * 100;
-
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">Overall Progress</span>
-          <span className="text-sm">{completedLessons}/{lessons.length}</span>
+          <span className="text-sm text-gray-600">
+            Overall Progress
+          </span>
+          <span className="text-sm">
+            {completedCount}/{allLessons.length}
+          </span>
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
 
-      <div className="relative">
-        {/* Connecting path */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 -translate-x-1/2 -z-10" />
+      {updatedModules.map((module) => (
+        <div key={module.id} className="space-y-6">
+          {/* Module Header */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500">
+            <div className="flex items-center gap-3">
+              {module.id === 3 ? (
+                <MessageCircle className="w-6 h-6 text-blue-500" />
+              ) : (
+                <Heart className="w-6 h-6 text-pink-500" />
+              )}
+              <h2 className="text-gray-800">{module.title}</h2>
+            </div>
+          </div>
 
-        {/* Lessons */}
-        <div className="space-y-8">
-          {lessons.map((lesson, index) => (
-            <div
-              key={lesson.id}
-              className={`flex items-center ${
-                index % 2 === 0 ? "flex-row" : "flex-row-reverse"
-              }`}
-            >
-              <div className={`flex-1 ${index % 2 === 0 ? "text-right pr-8" : "text-left pl-8"}`}>
-                {lesson.status !== "locked" && (
-                  <div className="inline-block">
-                    <div className="text-sm text-gray-600">{lesson.title}</div>
-                    {lesson.status === "completed" && (
-                      <div className="flex items-center gap-1 justify-end">
-                        {[...Array(lesson.stars)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        ))}
+          {/* Module Lessons */}
+          <div className="relative">
+            {/* Connecting path */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 -translate-x-1/2 -z-10" />
+
+            {/* Lessons */}
+            <div className="space-y-8">
+              {module.lessons.map((lesson, index) => (
+                <div
+                  key={lesson.id}
+                  className={`flex items-center ${
+                    index % 2 === 0
+                      ? "flex-row"
+                      : "flex-row-reverse"
+                  }`}
+                >
+                  <div
+                    className={`flex-1 ${index % 2 === 0 ? "text-right pr-8" : "text-left pl-8"}`}
+                  >
+                    {lesson.status !== "locked" && (
+                      <div className="inline-block">
+                        <div className="text-sm text-gray-600">
+                          {lesson.title}
+                        </div>
+                        {lesson.status === "completed" && (
+                          <div className="flex items-center gap-1 justify-end">
+                            {[...Array(lesson.stars)].map(
+                              (_, i) => (
+                                <Star
+                                  key={i}
+                                  className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                                />
+                              ),
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              <button
-                onClick={() =>
-                  lesson.status !== "locked" && setSelectedLesson(lesson)
-                }
-                disabled={lesson.status === "locked"}
-                className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all transform hover:scale-110 ${getLessonColor(
-                  lesson
-                )} ${lesson.type === "achievement" ? "w-20 h-20" : ""}`}
-              >
-                {getLessonIcon(lesson)}
-              </button>
+                  <button
+                    onClick={() =>
+                      lesson.status !== "locked" &&
+                      setSelectedLesson(lesson)
+                    }
+                    disabled={lesson.status === "locked"}
+                    className={`w-16 h-16 rounded-full border-4 flex items-center justify-center transition-all transform hover:scale-110 ${getLessonColor(
+                      lesson,
+                    )} ${lesson.type === "achievement" ? "w-20 h-20" : ""}`}
+                  >
+                    {getLessonIcon(lesson)}
+                  </button>
 
-              <div className="flex-1" />
+                  <div className="flex-1" />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      ))}
 
       {selectedLesson && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -119,21 +290,30 @@ export function LearningRoadmap() {
             <div className="text-center">
               <div
                 className={`w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center mb-4 ${getLessonColor(
-                  selectedLesson
+                  selectedLesson,
                 )}`}
               >
                 {getLessonIcon(selectedLesson)}
               </div>
               <h2 className="mb-2">{selectedLesson.title}</h2>
-              <p className="text-gray-600 mb-4">Earn {selectedLesson.xp} XP</p>
+              <p className="text-gray-600 mb-4">
+                Earn {selectedLesson.xp} XP
+              </p>
 
               {selectedLesson.status === "completed" && (
                 <div className="flex items-center justify-center gap-2 mb-6">
-                  <span className="text-sm text-gray-600">Completed with</span>
+                  <span className="text-sm text-gray-600">
+                    Completed with
+                  </span>
                   <div className="flex gap-1">
-                    {[...Array(selectedLesson.stars)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+                    {[...Array(selectedLesson.stars)].map(
+                      (_, i) => (
+                        <Star
+                          key={i}
+                          className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                        />
+                      ),
+                    )}
                   </div>
                 </div>
               )}
@@ -142,8 +322,11 @@ export function LearningRoadmap() {
                 <Button
                   className="w-full bg-green-500 hover:bg-green-600"
                   size="lg"
+                  onClick={() => onStartLesson(selectedLesson.title, selectedLesson.id)}
                 >
-                  {selectedLesson.status === "completed" ? "Practice Again" : "Start Lesson"}
+                  {selectedLesson.status === "completed"
+                    ? "Learn Again"
+                    : "Start Lesson"}
                 </Button>
                 <Button
                   variant="outline"
