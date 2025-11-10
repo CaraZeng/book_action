@@ -1,9 +1,24 @@
 "use client";
 
-import { Medal, Lock, Star, Trophy, Award, Crown, Zap, Target } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
+import {
+  Medal,
+  Lock,
+  Star,
+  Trophy,
+  Award,
+  Crown,
+  Zap,
+  Target,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface MedalData {
   id: number;
@@ -157,13 +172,13 @@ export function MedalsPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <Badge
-                    className={`${getRarityBadgeColor(medal.rarity)} text-white capitalize`}
+                    className={`${getRarityBadgeColor(
+                      medal.rarity
+                    )} text-white capitalize`}
                   >
                     {medal.rarity}
                   </Badge>
-                  {!medal.earned && (
-                    <Lock className="w-4 h-4 text-gray-400" />
-                  )}
+                  {!medal.earned && <Lock className="w-4 h-4 text-gray-400" />}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -200,7 +215,8 @@ export function MedalsPage() {
                 {medal.earned && medal.earnedDate && (
                   <div className="text-center pt-2 border-t">
                     <p className="text-xs text-gray-500">
-                      Earned on {new Date(medal.earnedDate).toLocaleDateString()}
+                      Earned on{" "}
+                      {new Date(medal.earnedDate).toLocaleDateString()}
                     </p>
                   </div>
                 )}

@@ -10,8 +10,8 @@ import {
   Heart,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 type LessonStatus = "locked" | "current" | "completed";
 
@@ -131,43 +131,47 @@ const modules: Module[] = [
   },
 ];
 
-export function LearningRoadmap({ 
-  onStartLesson, 
+export function LearningRoadmap({
+  onStartLesson,
   onStartModule,
-  completedLessonIds 
+  completedLessonIds,
 }: LearningRoadmapProps) {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   // Helper function to determine lesson status based on completedLessonIds
-  const getLessonStatus = (lesson: Lesson, lessonIndex: number, allPreviousLessons: Lesson[]): LessonStatus => {
+  const getLessonStatus = (
+    lesson: Lesson,
+    lessonIndex: number,
+    allPreviousLessons: Lesson[]
+  ): LessonStatus => {
     if (completedLessonIds.includes(lesson.id)) {
       return "completed";
     }
-    
-    const allPreviousCompleted = allPreviousLessons.every(prev => 
+
+    const allPreviousCompleted = allPreviousLessons.every((prev) =>
       completedLessonIds.includes(prev.id)
     );
-    
+
     if (allPreviousCompleted) {
       return "current";
     }
-    
+
     return "locked";
   };
 
   // Get all lessons with updated statuses
   const allLessons = modules.flatMap((m) => m.lessons);
-  const updatedModules = modules.map(module => ({
+  const updatedModules = modules.map((module) => ({
     ...module,
     lessons: module.lessons.map((lesson, index) => {
-      const lessonGlobalIndex = allLessons.findIndex(l => l.id === lesson.id);
+      const lessonGlobalIndex = allLessons.findIndex((l) => l.id === lesson.id);
       const previousLessons = allLessons.slice(0, lessonGlobalIndex);
-      
+
       return {
         ...lesson,
-        status: getLessonStatus(lesson, index, previousLessons)
+        status: getLessonStatus(lesson, index, previousLessons),
       };
-    })
+    }),
   }));
 
   const completedCount = completedLessonIds.length;

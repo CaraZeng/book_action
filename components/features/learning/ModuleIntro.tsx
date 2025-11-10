@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { X, ArrowRight } from "lucide-react";
 
 interface ModuleIntroProps {
@@ -18,7 +18,7 @@ export function ModuleIntro({
   mediaUrl,
   mediaType = "image",
   onStart,
-  onExit
+  onExit,
 }: ModuleIntroProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-blue-50 to-white">
@@ -31,7 +31,9 @@ export function ModuleIntro({
           >
             <X className="w-6 h-6" />
           </button>
-          <h2 className="text-sm font-medium text-gray-500">Module Introduction</h2>
+          <h2 className="text-sm font-medium text-gray-500">
+            Module Introduction
+          </h2>
           <div className="w-10"></div>
         </div>
 
@@ -39,8 +41,18 @@ export function ModuleIntro({
           {/* Module Icon & Title */}
           <div className="text-center mb-8">
             <div className="inline-block p-4 bg-blue-100 rounded-2xl mb-4">
-              <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              <svg
+                className="w-12 h-12 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
               </svg>
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -52,16 +64,16 @@ export function ModuleIntro({
           {mediaUrl && (
             <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl">
               {mediaType === "video" ? (
-                <video 
-                  src={mediaUrl} 
-                  controls 
+                <video
+                  src={mediaUrl}
+                  controls
                   className="w-full"
                   poster="/placeholder-video.jpg"
                 />
               ) : (
-                <img 
-                  src={mediaUrl} 
-                  alt={moduleTitle} 
+                <img
+                  src={mediaUrl}
+                  alt={moduleTitle}
                   className="w-full h-96 object-cover"
                 />
               )}

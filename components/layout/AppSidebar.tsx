@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -12,36 +13,43 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarRail,
-  SidebarTrigger,
   useSidebar,
-} from "./ui/sidebar";
-import { cn } from "./ui/utils";
-import { Home, Trophy, Flame, User, Settings, BookOpen, Target, Award, Medal, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+} from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  Flame, 
+  User, 
+  Settings, 
+  BookOpen, 
+  Award, 
+  Medal, 
+  ChevronLeft, 
+  ChevronRight, 
+  MessageCircle 
+} from "lucide-react";
 
-interface AppSidebarProps {
-  onNavigate: (page: string) => void;
-  currentPage: string;
-}
-
-export function AppSidebar({ onNavigate, currentPage }: AppSidebarProps) {
+export function AppSidebar() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
 
   const menuItems = [
-    { icon: Home, label: "Learn", page: "learn" },
-    { icon: MessageCircle, label: "Chat", page: "practice" },
-    { icon: Medal, label: "Medals", page: "medals" },
+    { icon: Home, label: "Learn", page: "/" },
+    { icon: MessageCircle, label: "Chat", page: "/chat" },
+    { icon: Medal, label: "Medals", page: "/medals" },
   ];
 
   const bottomItems = [
-    { icon: User, label: "Profile", href: "#" },
-    { icon: Settings, label: "Settings", href: "#" },
+    { icon: User, label: "Profile", page: "/profile" },
+    { icon: Settings, label: "Settings", page: "/settings" },
   ];
 
   return (
     <>
-      <Sidebar collapsible="icon" className="relative transition-[width] duration-300">
-        <SidebarHeader className="border-b p-4">
+      <Sidebar collapsible="icon" className="relative transition-[width] duration-300 border-r border-gray-200">
+        <SidebarHeader className="border-b border-gray-200 p-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-white" />
@@ -49,6 +57,7 @@ export function AppSidebar({ onNavigate, currentPage }: AppSidebarProps) {
             {!collapsed && <span className="text-green-600">BookAction</span>}
           </div>
         </SidebarHeader>
+        
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -65,9 +74,9 @@ export function AppSidebar({ onNavigate, currentPage }: AppSidebarProps) {
                         href="#" 
                         onClick={(e) => {
                           e.preventDefault();
-                          onNavigate(item.page);
+                          router.push(item.page);
                         }}
-                        className={currentPage === item.page ? "bg-gray-100" : ""}
+                        className={pathname === item.page ? "bg-gray-100" : ""}
                       >
                         <item.icon className="w-4 h-4" />
                         <span>{item.label}</span>
@@ -107,7 +116,8 @@ export function AppSidebar({ onNavigate, currentPage }: AppSidebarProps) {
             </SidebarGroup>
           )}
         </SidebarContent>
-        <SidebarFooter className="border-t">
+        
+        <SidebarFooter className="border-t border-gray-200">
           <SidebarMenu>
             {bottomItems.map((item) => (
               <SidebarMenuItem key={item.label}>
@@ -116,7 +126,14 @@ export function AppSidebar({ onNavigate, currentPage }: AppSidebarProps) {
                   tooltip={item.label}
                   className={collapsed ? "justify-center" : ""}
                 >
-                  <a href={item.href}>
+                  <a 
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push(item.page);
+                    }}
+                    className={pathname === item.page ? "bg-gray-100" : ""}
+                  >
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </a>
