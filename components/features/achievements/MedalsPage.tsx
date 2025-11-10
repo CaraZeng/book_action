@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Medal,
   Lock,
   Star,
   Trophy,
@@ -9,16 +8,10 @@ import {
   Crown,
   Zap,
   Target,
+  Medal,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface MedalData {
   id: number;
@@ -28,7 +21,6 @@ interface MedalData {
   earnedDate?: string;
   rarity: "common" | "rare" | "epic" | "legendary";
   icon: React.ComponentType<{ className?: string }>;
-  imageUrl?: string; // Placeholder for medal image
 }
 
 const medals: MedalData[] = [
@@ -37,7 +29,7 @@ const medals: MedalData[] = [
     name: "First Steps",
     description: "Complete your first lesson",
     earned: true,
-    earnedDate: "2024-10-15",
+    earnedDate: "2024-10-14",
     rarity: "common",
     icon: Star,
   },
@@ -46,7 +38,7 @@ const medals: MedalData[] = [
     name: "Week Warrior",
     description: "Maintain a 7-day streak",
     earned: true,
-    earnedDate: "2024-10-22",
+    earnedDate: "2024-10-21",
     rarity: "rare",
     icon: Trophy,
   },
@@ -55,7 +47,7 @@ const medals: MedalData[] = [
     name: "Quick Learner",
     description: "Complete 10 lessons in one day",
     earned: true,
-    earnedDate: "2024-10-28",
+    earnedDate: "2024-10-27",
     rarity: "epic",
     icon: Zap,
   },
@@ -64,7 +56,7 @@ const medals: MedalData[] = [
     name: "Perfect Score",
     description: "Get 100% on 5 lessons",
     earned: true,
-    earnedDate: "2024-11-01",
+    earnedDate: "2024-10-31",
     rarity: "rare",
     icon: Target,
   },
@@ -107,22 +99,22 @@ export function MedalsPage() {
   const totalMedals = medals.length;
   const progressPercentage = (earnedMedals.length / totalMedals) * 100;
 
-  const getRarityColor = (rarity: string) => {
+  const getRarityGradient = (rarity: string) => {
     switch (rarity) {
       case "common":
-        return "bg-gray-100 text-gray-700 border-gray-300";
+        return "from-gray-100 to-gray-50";
       case "rare":
-        return "bg-blue-100 text-blue-700 border-blue-300";
+        return "from-blue-100 to-blue-50";
       case "epic":
-        return "bg-purple-100 text-purple-700 border-purple-300";
+        return "from-purple-100 to-pink-50";
       case "legendary":
-        return "bg-yellow-100 text-yellow-700 border-yellow-300";
+        return "from-yellow-100 to-orange-50";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-300";
+        return "from-gray-100 to-gray-50";
     }
   };
 
-  const getRarityBadgeColor = (rarity: string) => {
+  const getRarityBadge = (rarity: string) => {
     switch (rarity) {
       case "common":
         return "bg-gray-500";
@@ -138,97 +130,103 @@ export function MedalsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
+    <div className="min-h-full py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="mb-4">Medal Collection</h1>
-          <p className="text-gray-600 mb-6">
-            Earn medals by completing challenges and reaching milestones
-          </p>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm">Collection Progress</span>
-                <span className="text-sm">
-                  {earnedMedals.length}/{totalMedals} Medals
-                </span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-            </CardContent>
-          </Card>
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-base font-semibold text-gray-700">Collection Progress</span>
+              <span className="text-base font-bold text-gray-900">
+                {earnedMedals.length}/{totalMedals} Medals
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-3" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {medals.map((medal) => (
-            <Card
-              key={medal.id}
-              className={`relative overflow-hidden transition-all ${
-                medal.earned
-                  ? getRarityColor(medal.rarity)
-                  : "bg-gray-50 opacity-75"
-              }`}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <Badge
-                    className={`${getRarityBadgeColor(
-                      medal.rarity
-                    )} text-white capitalize`}
-                  >
-                    {medal.rarity}
-                  </Badge>
-                  {!medal.earned && <Lock className="w-4 h-4 text-gray-400" />}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Medal Image Placeholder */}
+        {/* Medals Grid - 固定宽高比 */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {medals.map((medal) => {
+            const MedalIcon = medal.icon;
+            return (
+              <div
+                key={medal.id}
+                className="relative aspect-square"
+              >
                 <div
-                  className={`w-32 h-32 mx-auto rounded-full flex items-center justify-center border-4 ${
-                    medal.earned
-                      ? "border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200"
-                      : "border-gray-300 bg-gray-200"
-                  }`}
+                  className={`absolute inset-0 bg-gradient-to-br ${getRarityGradient(
+                    medal.rarity
+                  )} rounded-2xl shadow-lg border-2 ${
+                    medal.earned 
+                      ? "border-yellow-300 hover:shadow-xl" 
+                      : "border-gray-200 opacity-60"
+                  } transition-all overflow-hidden`}
                 >
-                  {medal.imageUrl ? (
-                    <img
-                      src={medal.imageUrl}
-                      alt={medal.name}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <medal.icon
-                      className={`w-16 h-16 ${
-                        medal.earned ? "text-yellow-600" : "text-gray-400"
-                      }`}
-                    />
+                  {/* 闪光效果 - 只对已获得的奖牌 */}
+                  {medal.earned && (
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent animate-shimmer" />
                   )}
-                </div>
 
-                <div className="text-center">
-                  <CardTitle className="text-lg mb-2">{medal.name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {medal.description}
-                  </CardDescription>
-                </div>
+                  {/* Rarity Badge */}
+                  <div className="absolute top-3 left-3">
+                    <Badge className={`${getRarityBadge(medal.rarity)} text-white text-xs px-2 py-0.5`}>
+                      {medal.rarity}
+                    </Badge>
+                  </div>
 
-                {medal.earned && medal.earnedDate && (
-                  <div className="text-center pt-2 border-t">
-                    <p className="text-xs text-gray-500">
-                      Earned on{" "}
-                      {new Date(medal.earnedDate).toLocaleDateString()}
+                  {/* Lock Icon */}
+                  {!medal.earned && (
+                    <div className="absolute top-3 right-3">
+                      <Lock className="w-5 h-5 text-gray-400" />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="flex flex-col items-center justify-center h-full p-4">
+                    {/* Medal Icon */}
+                    <div
+                      className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border-4 mb-3 ${
+                        medal.earned
+                          ? "border-yellow-400 bg-gradient-to-br from-yellow-200 to-yellow-100 shadow-lg"
+                          : "border-gray-300 bg-gray-100"
+                      }`}
+                    >
+                      <MedalIcon
+                        className={`w-10 h-10 sm:w-12 sm:h-12 ${
+                          medal.earned ? "text-yellow-600" : "text-gray-400"
+                        }`}
+                      />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 text-center mb-1">
+                      {medal.name}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs text-gray-600 text-center line-clamp-2 mb-2">
+                      {medal.description}
                     </p>
-                  </div>
-                )}
 
-                {!medal.earned && (
-                  <div className="text-center pt-2 border-t">
-                    <p className="text-xs text-gray-500">Not earned yet</p>
+                    {/* Earned Date */}
+                    {medal.earned && medal.earnedDate && (
+                      <p className="text-xs text-gray-500 mt-auto">
+                        {new Date(medal.earnedDate).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                    )}
+
+                    {!medal.earned && (
+                      <p className="text-xs text-gray-400 mt-auto">Locked</p>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

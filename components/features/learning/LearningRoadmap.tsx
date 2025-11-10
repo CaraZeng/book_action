@@ -1,5 +1,7 @@
 "use client";
 
+import { module1Data } from "@/lib/data/modules";
+
 import { useState } from "react";
 import {
   Star,
@@ -37,60 +39,18 @@ interface LearningRoadmapProps {
 }
 
 const modules: Module[] = [
-  {
-    id: 3,
-    title: "Module 3: Communication and Boundaries",
-    lessons: [
-      {
-        id: 1,
-        title: "Active Listening",
-        status: "completed",
-        xp: 50,
-        stars: 3,
-        type: "lesson",
-      },
-      {
-        id: 2,
-        title: "Expressing Needs",
-        status: "completed",
-        xp: 50,
-        stars: 3,
-        type: "lesson",
-      },
-      {
-        id: 3,
-        title: "Setting Boundaries",
-        status: "current",
-        xp: 50,
-        stars: 0,
-        type: "lesson",
-      },
-      {
-        id: 4,
-        title: "Conflict Resolution",
-        status: "locked",
-        xp: 50,
-        stars: 0,
-        type: "lesson",
-      },
-      {
-        id: 5,
-        title: "Nonverbal Cues",
-        status: "locked",
-        xp: 50,
-        stars: 0,
-        type: "lesson",
-      },
-      {
-        id: 6,
-        title: "Communication Practice",
-        status: "locked",
-        xp: 40,
-        stars: 0,
-        type: "practice",
-      },
-    ],
-  },
+{
+  id: 3,
+  title: module1Data.module.title,
+  lessons: module1Data.concepts.map((concept) => ({
+    id: concept.order_index,
+    title: concept.title,
+    status: "locked" as LessonStatus,
+    xp: 50,
+    stars: 3,
+    type: "lesson" as const,
+  })),
+},
   {
     id: 4,
     title: "Module 4: Healthy vs. Unhealthy Relationships",

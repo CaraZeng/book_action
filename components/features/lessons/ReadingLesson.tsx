@@ -2,72 +2,26 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { Concept } from "@/lib/types/module";
 
 interface ReadingLessonProps {
-  lessonTitle: string;
+  concept: Concept;
   onExit: () => void;
   onNext: () => void;
 }
 
-interface StoryExample {
-  story: string;
-  mediaUrl?: string;
-}
-
-interface ArticleContent {
-  title: string;
-  definition: string;
-  whyItWorks: string;
-  goodExample: StoryExample;
-  badExample: StoryExample;
-  imageUrl?: string;
-}
-
 export function ReadingLesson({
-  lessonTitle,
+  concept,
   onExit,
   onNext,
 }: ReadingLessonProps) {
-  const [article, setArticle] = useState<ArticleContent | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    // GET /api/concepts/{conceptId}
-    const fetchArticle = async () => {
-      setLoading(true);
-
-      // Mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const mockArticle: ArticleContent = {
-        title: "Understanding Communication",
-        definition:
-          "Effective communication is the foundation of healthy relationships. It involves not just speaking, but truly listening to understand the other person's perspective.",
-        whyItWorks:
-          "Active listening means giving your full attention to the speaker, without planning your response while they're talking. It means observing body language, tone of voice, and the emotions behind the words.",
-        goodExample: {
-          story:
-            "Sarah noticed her friend seemed upset. Instead of offering advice immediately, she sat down and said, 'You seem troubled. I'm here to listen if you want to talk.' She maintained eye contact, put away her phone, and let her friend speak without interruption. Her friend felt truly heard and valued.",
-          mediaUrl:
-            "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80",
-        },
-        badExample: {
-          story:
-            "Mark's partner tried to share a problem at work. While she was speaking, Mark kept checking his phone and interrupted her twice to give advice she didn't ask for. He then changed the subject to his own day. His partner felt dismissed and stopped sharing important things with him.",
-          mediaUrl:
-            "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80",
-        },
-        imageUrl:
-          "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80",
-      };
-
-      setArticle(mockArticle);
-      setLoading(false);
-    };
-
-    fetchArticle();
-  }, [lessonTitle]);
+    // 模拟加载
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -76,14 +30,6 @@ export function ReadingLesson({
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading lesson...</p>
         </div>
-      </div>
-    );
-  }
-
-  if (!article) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500">Failed to load lesson content</p>
       </div>
     );
   }
@@ -106,19 +52,8 @@ export function ReadingLesson({
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Main Title */}
           <h1 className="text-3xl font-bold text-center mb-2">
-            {article.title}
+            {concept.title}
           </h1>
-
-          {/* Main Image */}
-          {article.imageUrl && (
-            <div className="rounded-xl overflow-hidden shadow-lg mb-8">
-              <img
-                src={article.imageUrl}
-                alt={article.title}
-                className="w-full h-64 object-cover"
-              />
-            </div>
-          )}
 
           {/* Definition */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -126,7 +61,7 @@ export function ReadingLesson({
               What is it?
             </h3>
             <p className="text-lg leading-relaxed text-gray-700">
-              {article.definition}
+              {concept.definition}
             </p>
           </div>
 
@@ -136,7 +71,7 @@ export function ReadingLesson({
               Why it matters
             </h3>
             <p className="text-lg leading-relaxed text-gray-700">
-              {article.whyItWorks}
+              {concept.why_it_works}
             </p>
           </div>
 
@@ -149,10 +84,10 @@ export function ReadingLesson({
               </h3>
             </div>
 
-            {article.goodExample.mediaUrl && (
+            {concept.tutorial.good_media_url && (
               <div className="rounded-lg overflow-hidden mb-4">
                 <img
-                  src={article.goodExample.mediaUrl}
+                  src={concept.tutorial.good_media_url}
                   alt="Good example"
                   className="w-full h-48 object-cover"
                 />
@@ -160,7 +95,7 @@ export function ReadingLesson({
             )}
 
             <p className="text-lg leading-relaxed text-gray-800">
-              {article.goodExample.story}
+              {concept.tutorial.good_story}
             </p>
           </div>
 
@@ -173,10 +108,10 @@ export function ReadingLesson({
               </h3>
             </div>
 
-            {article.badExample.mediaUrl && (
+            {concept.tutorial.bad_media_url && (
               <div className="rounded-lg overflow-hidden mb-4">
                 <img
-                  src={article.badExample.mediaUrl}
+                  src={concept.tutorial.bad_media_url}
                   alt="Bad example"
                   className="w-full h-48 object-cover"
                 />
@@ -184,16 +119,14 @@ export function ReadingLesson({
             )}
 
             <p className="text-lg leading-relaxed text-gray-800">
-              {article.badExample.story}
+              {concept.tutorial.bad_story}
             </p>
           </div>
 
           {/* Key Takeaway */}
           <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-r-xl p-6">
             <p className="text-lg font-medium text-gray-800">
-              💡 <strong>Remember:</strong> Good communication is a skill that
-              can be learned and improved with practice. Each conversation is an
-              opportunity to strengthen your relationships.
+              💡 <strong>Remember:</strong> {concept.summary.summary_content}
             </p>
           </div>
 
