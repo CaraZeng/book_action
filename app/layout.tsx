@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "@assistant-ui/styles/index.css";
+import "@assistant-ui/styles/markdown.css";
 import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
