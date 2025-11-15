@@ -5,51 +5,33 @@ import {
   convertToModelMessages,
   type UIMessage,
 } from "ai";
-import { frontendTools } from "@assistant-ui/react-ai-sdk";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const {
-    messages,
-    system,
-    tools,
-  }: {
-    messages?: UIMessage[];
-    system?: string;
-    tools?: any;
-  } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
-  if (!process.env.OPENAI_API_KEY) {
-    return new Response(
-      JSON.stringify({
-        error: "Missing OPENAI_API_KEY environment variable.",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
-  }
+  // 打一行日志，确认前端传进来的 messages 长什么样
+  console.log(
+    "[chat api] incoming messages:",
+    JSON.stringify(messages, null, 2),
+  );
 
-  const safeMessages = Array.isArray(messages) ? messages : [];
+  const result = streamText({
+    model: openai("gpt-4o-mini"),
+    messages: convertToModelMessages(messages),
+  });
 
-  try {
-    console.log("[chat api] sending messages", {
-      count: safeMessages.length,
-      hasKey: true,
-    });
-
-    const result = streamText({
-      model: openai("gpt-4o-mini"),
-      system, // 以后你要在前端加 system 提示，这里就能接住
-      messages: convertToModelMessages(safeMessages),
-      tools: frontendTools(tools),
-    });
-
-    return result.toUIMessageStreamResponse();
-  } catch (error) {
-    console.error("[chat api] failed to stream response", error);
-    return new Response(
-      JSON.stringify({ error: "Unable to fetch response from OpenAI." }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
-  }
+  // 关键：用 assistant-ui 官方示例的返回方式
+  return result.toUIMessageStreamResponse({
+    // 把原始 messages 传进去，方便它做上下文关联
+    originalMessages: messages,
+    // 再加一个 onFinish 方便你在服务端看到最终 assistant 消息
+    onFinish({ responseMessage }) {
+      console.log(
+        "[chat api] assistant responseMessage:",
+        JSON.stringify(responseMessage, null, 2),
+      );
+    },
+  });
 }
