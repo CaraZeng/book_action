@@ -1,10 +1,15 @@
 // app/api/chat/route.ts
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import {
   streamText,
   convertToModelMessages,
   type UIMessage,
 } from "ai";
+
+const openrouter = createOpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+});
 
 export const maxDuration = 30;
 
@@ -17,8 +22,12 @@ export async function POST(req: Request) {
     JSON.stringify(messages, null, 2),
   );
 
+  if (!process.env.OPENROUTER_API_KEY) {
+    return new Response("Missing OPENROUTER_API_KEY", { status: 500 });
+  }
+
   const result = streamText({
-    model: openai("gpt-4o-mini"),
+    model: openrouter("openai/gpt-4o-mini"),
     messages: convertToModelMessages(messages),
   });
 

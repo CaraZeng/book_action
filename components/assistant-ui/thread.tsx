@@ -25,6 +25,24 @@ import { Button } from "@/components/ui/button";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 
+const WELCOME_SUGGESTIONS = [
+  {
+    label: "Lesson recap + quiz",
+    prompt:
+      "Give me a short recap of today's lesson and create 3 quiz questions to check my understanding.",
+  },
+  {
+    label: "Role-play practice",
+    prompt:
+      "Start a role-play to practice today's topic. Keep your replies short and ask me to respond.",
+  },
+  {
+    label: "Explain a tricky point",
+    prompt:
+      "Explain the most confusing idea point from this lesson with one example, then quiz me on it.",
+  },
+];
+
 export const Thread: FC = () => {
   return (
     <ThreadPrimitive.Root className="text-foreground bg-transparent flex h-full flex-col">
@@ -71,7 +89,7 @@ const ThreadWelcome: FC = () => {
           Start a study conversation
         </p>
         <p className="mt-2">
-          Ask for help with grammar, pronunciation, or practice exercises.
+          Ask for help with Communications, Boundaries, and Relationships.
         </p>
         <ThreadWelcomeSuggestions />
       </div>
@@ -82,26 +100,17 @@ const ThreadWelcome: FC = () => {
 const ThreadWelcomeSuggestions: FC = () => {
   return (
     <div className="mt-4 flex w-full flex-wrap justify-center gap-3">
-      <ThreadPrimitive.Suggestion
-        className="hover:bg-muted/80 flex min-w-48 flex-1 basis-[45%] flex-col rounded-lg border px-4 py-3 transition-colors"
-        prompt="Help me practice small talk about travel."
-        method="replace"
-        autoSend
-      >
-        <span className="text-sm font-medium text-left">
-          Practice small talk about travel
-        </span>
-      </ThreadPrimitive.Suggestion>
-      <ThreadPrimitive.Suggestion
-        className="hover:bg-muted/80 flex min-w-48 flex-1 basis-[45%] flex-col rounded-lg border px-4 py-3 transition-colors"
-        prompt="Explain the difference between past tense endings."
-        method="replace"
-        autoSend
-      >
-        <span className="text-sm font-medium text-left">
-          Past tense endings refresher
-        </span>
-      </ThreadPrimitive.Suggestion>
+      {WELCOME_SUGGESTIONS.map(({ label, prompt }) => (
+        <ThreadPrimitive.Suggestion
+          key={label}
+          className="hover:bg-muted/80 flex min-w-48 flex-1 basis-[45%] flex-col rounded-lg border px-4 py-3 transition-colors"
+          prompt={prompt}
+          method="replace"
+          autoSend
+        >
+          <span className="text-sm font-medium text-left">{label}</span>
+        </ThreadPrimitive.Suggestion>
+      ))}
     </div>
   );
 };
